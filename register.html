@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Registration Page</title>
+  </head>
+  <body>
+    <h1>Register</h1>
+    <form id="register-form">
+      <div>
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email">
+      </div>
+      <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password">
+      </div>
+      <div>
+        <label for="confirm-password">Confirm Password:</label>
+        <input type="password" id="confirm-password" name="confirm-password">
+      </div>
+      <button type="submit">Register</button>
+    </form>
+    <script>
+            const form = document.getElementById('register-form');
+          form.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          
+          // Get the values of the email and password fields
+          const email = document.getElementById('email').value;
+          const password = document.getElementById('password').value;
+
+              const data = {
+              email: email,
+              password: password
+              };
+
+              const response = await fetch('http://127.0.0.1:3000/register', {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+                });
+
+          // Handle the response
+          if (!response.ok) {
+            const { message } = await response.json();
+            alert(`Error: ${message}`);
+          } else {
+            alert('Registration successful');
+            window.location.href = '/login.html';
+          }
+        });
+    </script>
+  </body>
+</html>

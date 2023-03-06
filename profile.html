@@ -15,35 +15,36 @@
       console.log('Token:', token);
 
       if (!token) {
-        alert('Unauthorized access');
-        window.location.href = '/login.html';
-      } else {
-        fetch('http://127.0.0.1:3000/profile', {
-          headers: {
-            'Authorization': token
-          }
-        })
-        .then(response => {
-          if (response.ok) {
-            return response.json();
-          } else {
-            throw new Error('Unauthorized');
-          }
-        })
-        .then(data => {
-          const profileInfo = document.getElementById('profile-info');
-          const email = document.createElement('p');
-          email.innerText = `Email: ${data.email}`;
-          profileInfo.appendChild(email);
-          const id = document.createElement('p');
-          id.innerText = `ID: ${data.id}`;
-          profileInfo.appendChild(id);
-        })
-        .catch(error => {
-          console.error(error);
-          alert('An error occurred while fetching the profile information');
-        });
-      }
+  alert('Unauthorized access');
+  window.location.href = '/login.html';
+} else {
+  fetch('http://127.0.0.1:3000/profile', {
+    headers: {
+      'Authorization': 'Bearer ' + token // Add Bearer token prefix
+    },
+    credentials: 'include' // Send cookies with the request
+  })
+  .then(response => {
+    if (response.ok) {
+      return response.json();
+    } else {
+      throw new Error('Unauthorized');
+    }
+  })
+  .then(data => {
+    const profileInfo = document.getElementById('profile-info');
+    const email = document.createElement('p');
+    email.innerText = `Email: ${data.email}`;
+    profileInfo.appendChild(email);
+    const id = document.createElement('p');
+    id.innerText = `ID: ${data.id}`;
+    profileInfo.appendChild(id);
+  })
+  .catch(error => {
+    console.error(error);
+    alert('An error occurred while fetching the profile information');
+  });
+}
 
       // Add event listener to logout button
       const logoutButton = document.getElementById('logout-button');

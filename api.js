@@ -125,14 +125,14 @@ const authenticate = async (req, res, next) => {
   const token = req.cookies.token; // Get token from cookie
 
   if (!token) {
-    return res.redirect('/login.html');
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 
   try {
     const decoded = await verifyAsync(token, 'secret');
     const [rows] = await pool.execute(
-      'SELECT * FROM users WHERE email = ?',
-      [decoded.email]
+      'SELECT * FROM users WHERE id = ?',
+      [decoded.id]
     );
     if (rows.length === 0) {
       throw new Error('Unauthorized');
@@ -142,7 +142,7 @@ const authenticate = async (req, res, next) => {
   } catch (err) {
     // Clear token cookie if verification fails
     res.clearCookie('token');
-    res.redirect('/login.html');
+    res.status(401).json({ error: err.message });
   }
 };
 

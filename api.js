@@ -4,6 +4,8 @@ const cors = require('cors');
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser'); // Import cookie-parser
+
 const { promisify } = require('util');
 
 const app = express();
@@ -11,7 +13,16 @@ const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({
+  origin: 'http://127.0.0.1:5500',
+  credentials: true
+}));
+
+app.options('*', cors({
+  origin: 'http://127.0.0.1:5500',
+  credentials: true
+}));
+app.use(cookieParser()); // Use cookie-parser middleware
 
 // MySQL Connection Pool
 const pool = mysql.createPool({
@@ -69,7 +80,6 @@ app.post('/register', async (req, res) => {
 });
 
 
-
 // Login endpoint
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
@@ -89,20 +99,33 @@ app.post('/login', async (req, res) => {
       throw new Error('Invalid credentials');
     }
 
-    const token = await signAsync({ email }, 'secret', { expiresIn: '1h' });
-    res.json({ token });
+    const token = jwt.sign({ id: user.id }, 'secret', { expiresIn: '1h' });
+
+    // Save token in cookie
+    res.cookie('token', token, { expires: 0 });
+
+
+
+
+    res.json({ message: 'Login successful' });
   } catch (err) {
     res.status(401).json({ error: err.message });
   }
 });
 
+app.post('/logout', (req, res) => {
+  // Clear token cookie
+  res.clearCookie('token');
+
+  res.json({ message: 'Logout successful' });
+});
 
 // Authentication middleware
 const authenticate = async (req, res, next) => {
-  const token = req.headers.authorization;
+  const token = req.cookies.token; // Get token from cookie
 
   if (!token) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.redirect('/login.html');
   }
 
   try {
@@ -117,9 +140,12 @@ const authenticate = async (req, res, next) => {
     req.user = rows[0];
     next();
   } catch (err) {
-    res.status(401).json({ error: err.message });
+    // Clear token cookie if verification fails
+    res.clearCookie('token');
+    res.redirect('/login.html');
   }
 };
+
 
 // Protected endpoint
 app.get('/profile', authenticate, (req, res) => {

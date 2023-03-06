@@ -7,29 +7,51 @@
   <body>
     <h1>Profile</h1>
     <div id="profile-info"></div>
+    <button id="logout-button">Logout</button>
     <script>
-      const token = localStorage.getItem('token');
+      // Get token from cookie
+      console.log('Cookies:', document.cookie);
+      const token = document.cookie.split('; ').find(row => row.startsWith('token=')).split('=')[1];
+      console.log('Token:', token);
+
       if (!token) {
         alert('Unauthorized access');
         window.location.href = '/login.html';
       } else {
-        fetch('http://localhost:3000/profile', {
+        fetch('http://127.0.0.1:3000/profile', {
           headers: {
             'Authorization': token
           }
         })
-        .then(response => response.json())
+        .then(response => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error('Unauthorized');
+          }
+        })
         .then(data => {
           const profileInfo = document.getElementById('profile-info');
           const email = document.createElement('p');
           email.innerText = `Email: ${data.email}`;
           profileInfo.appendChild(email);
+          const id = document.createElement('p');
+          id.innerText = `ID: ${data.id}`;
+          profileInfo.appendChild(id);
         })
         .catch(error => {
           console.error(error);
           alert('An error occurred while fetching the profile information');
         });
       }
+
+      // Add event listener to logout button
+      const logoutButton = document.getElementById('logout-button');
+      logoutButton.addEventListener('click', event => {
+        event.preventDefault();
+        document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        window.location.href = '/login.html';
+      });
     </script>
   </body>
 </html>

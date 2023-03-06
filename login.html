@@ -18,36 +18,30 @@
       <button type="submit">Login</button>
     </form>
     <script>
-        const form = document.getElementById('login-form');
-        form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        
-        // Get the values of the email and password inputs
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+            const loginForm = document.querySelector('form');
+            loginForm.addEventListener('submit', event => {
+              event.preventDefault();
+              const email = loginForm.email.value;
+              const password = loginForm.password.value;
+              fetch('http://127.0.0.1:3000/login', {
+                method: 'POST',
+                headers: {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+                body: JSON.stringify({ email, password }),
+                credentials: 'include'
+              })
+              .then(response => {
+                if (response.ok) {
+                  window.location.href = '/profile.html';
+                } else {
+                  throw new Error('Invalid credentials');
+                }
+              })
+              .catch(error => {
+                console.error(error);
+                alert('An error occurred while logging in');
+              });
+            });
 
-        // Create the data object
-        const data = { email, password };
-
-        // Send the login request
-        const response = await fetch('http://localhost:3000/login', {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-
-        // Handle the response
-        if (!response.ok) {
-            const { error } = await response.json();
-            alert(`Error: ${error}`);
-        } else {
-            const { token } = await response.json();
-            localStorage.setItem('token', token);
-            window.location.href = '/profile.html';
-        }
-        });
     </script>
   </body>
 </html>

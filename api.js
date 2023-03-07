@@ -4,6 +4,7 @@ const cors = require('cors');
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const ejs = require('ejs');
 const cookieParser = require('cookie-parser'); // Import cookie-parser
 
 const { promisify } = require('util');
@@ -46,7 +47,49 @@ const userSchema = `
     password VARCHAR(255)
   );
 `;
+
+const productPageTemplate = `
+  <html>
+    <head>
+      <title><%= product.name %></title>
+    </head>
+    <body>
+      <h1><%= product.name %></h1>
+      <img src="<%= product.image_url %>" alt="<%= product.name %>">
+      <p><%= product.description %></p>
+      <p><%= product.price %></p>
+    </body>
+  </html>
+`;
+
 pool.execute(userSchema);
+
+// API endpoint to fetch product by ID
+// API endpoint to fetch product by ID
+app.get('/product/:id', async (req, res) => {
+  const productId = req.params.id;
+  console.log('Received request for product page ID:', productId);
+
+  try {
+    console.log('Before query');
+    const [results] = await pool.query('SELECT * FROM products WHERE id = ?', [productId]);
+    console.log('After query');
+    if (results.length === 0) {
+      res.sendStatus(404);
+      return;
+    }
+    const product = results[0];
+    console.log(product)
+    const html = ejs.render(productPageTemplate, { product });
+    res.set('Content-Type', 'text/html'); // Set the response type to HTML
+    res.send(html);
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
+});
+
+
 
 // Registration endpoint
 app.post('/register', async (req, res) => {

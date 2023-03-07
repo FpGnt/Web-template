@@ -64,30 +64,27 @@ const productPageTemplate = `
 
 pool.execute(userSchema);
 
-// API endpoint to fetch product by ID
-// API endpoint to fetch product by ID
-app.get('/product/:id', async (req, res) => {
+
+app.get('/page/:id', async (req, res) => {
   const productId = req.params.id;
   console.log('Received request for product page ID:', productId);
 
   try {
-    console.log('Before query');
     const [results] = await pool.query('SELECT * FROM products WHERE id = ?', [productId]);
-    console.log('After query');
     if (results.length === 0) {
       res.sendStatus(404);
       return;
     }
     const product = results[0];
-    console.log(product)
     const html = ejs.render(productPageTemplate, { product });
-    res.set('Content-Type', 'text/html'); // Set the response type to HTML
+    res.set('Content-Type', 'text/html');
     res.send(html);
   } catch (err) {
     console.error(err);
     res.sendStatus(500);
   }
 });
+
 
 
 

@@ -47,28 +47,25 @@
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
-$(document).ready(function() {
-  $('.product-list a').click(function(event) {
-    event.preventDefault();
-    const productId = $(this).data('product-id');
-    const url = `http://127.0.0.1:3000/product/${productId}`;
+    $(document).ready(function() {
+      $('.product-list a').click(function(event) {
+        event.preventDefault();
+        const productId = $(this).data('product-id');
+        const url = `http://127.0.0.1:3000/page/${productId}`;
+        
+        // Check if the current URL is the product page URL
+        const currentUrl = window.location.href;
+        const productPageUrl = `http://127.0.0.1:3000/page/${productId}`;
+        if (currentUrl === productPageUrl) {
+          // Reload the page if the user is already on the product page
+          window.location.reload();
+        } else {
+          // Redirect to the product page if the user is on the home page
+          window.location.href = url;
+        }
+      });
+    });
+    </script>
     
-    fetch(url)
-      .then(response => {
-        console.log(response);
-        return response.text(); // Change to response.text() instead of response.json()
-      })
-      .then(data => {
-        // Replace the product list HTML with the product page HTML
-        $('.product-list').html(data);
-
-        // Update the URL to the product page URL
-        window.history.pushState(null, null, `/page/${productId}`);
-      })
-      .catch(error => console.error(error));
-  });
-});
-
-  </script>
 </body>
 </html>

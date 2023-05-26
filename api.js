@@ -27,10 +27,10 @@ app.use(cookieParser()); // Use cookie-parser middleware
 
 // MySQL Connection Pool
 const pool = mysql.createPool({
-    host: "server42.areait.lv",
-    user: "kkbopro_automation",
-    password: "+FnQDPmAg7$D",
-    database: "kkbopro_map"
+    host: "",
+    user: "",
+    password: "",
+    database: ""
 });
 
 // Promisify bcrypt and jwt functions
